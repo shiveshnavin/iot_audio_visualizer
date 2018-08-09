@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Audizer IOT</string>
+    <string name="hello">Hello World, SoundRecordAndAnalysisActivity!</string>
+</resources>
