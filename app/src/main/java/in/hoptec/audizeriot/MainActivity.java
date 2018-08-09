@@ -1,13 +1,10 @@
 package in.hoptec.audizeriot;
 
 import android.Manifest;
-import android.content.Context;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
-import android.widget.TextView;
 
 import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.error.ANError;
@@ -17,8 +14,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import be.tarsos.dsp.AudioDispatcher;
 import be.tarsos.dsp.AudioEvent;
@@ -39,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
 
         }
     },250);
-    boolean isOn=true;
+    boolean isSamplingOn =true;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,24 +53,35 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void run() {
 
-                        Log.e("Pitch",""+curPitch);
+
                         curPitch=pitchInHz;
 
-                        if(curPitch!=-1 )
-                        {
-                            if( Math.abs(curPitch-prevPitch)<20)
+
+                            if(prevPitch==-1 && curPitch>-1)
                             {
-                                Log.e("Repeat Pitch",""+curPitch);
-                                updateFreq(-1);
-                                updateFreq(curPitch);
-
-                                return;
+                                isSamplingOn =true;
                             }
-                            freqs.add(curPitch);
-                            updateFreq(curPitch);
-                        }
 
-                        prevPitch=curPitch;
+                            if(isSamplingOn)
+                                freqs.add(curPitch);
+                            if(isSamplingOn&& prevPitch>-1 && curPitch==-1)
+                            {
+                                float avg=freqs.get(0);
+                                isSamplingOn=false;
+                                for(int i=0;i<freqs.size();i++)
+                                {
+                                    if(freqs.get(i)>avg)
+                                        avg=freqs.get(i);
+                                  //  avg+=freqs.get(i);
+                                }
+                                //avg=avg/freqs.size();
+                                updateFreq(avg);
+                                Log.e("Pitch",""+avg);
+                                freqs=new ArrayList<>();
+                            }
+
+
+                        prevPitch=pitchInHz;
 
                     }
                 });
@@ -104,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
         },1000);*/
 
 
-        if(true)
+        if(reqInProgress)
             return;
 
         float h=(pitch/400)*360;
@@ -143,12 +149,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
 
-        isOn=false;
         for(int i=0;i<freqs.size();i++)
         {
             Log.d(""+i,""+freqs.get(i));
         }
-       // rec.stop();
+      rec.stop();
 
 
      //   audizerRecorder.stop();
