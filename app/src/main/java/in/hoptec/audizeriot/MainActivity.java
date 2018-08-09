@@ -14,6 +14,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Timer;
 
 import be.tarsos.dsp.AudioDispatcher;
 import be.tarsos.dsp.AudioEvent;
@@ -57,6 +58,9 @@ public class MainActivity extends AppCompatActivity {
                         curPitch=pitchInHz;
 
 
+                        updateFreq(pitchInHz);
+                        if(true)
+                            return;
                             if(prevPitch==-1 && curPitch>-1)
                             {
                                 isSamplingOn =true;
@@ -78,6 +82,11 @@ public class MainActivity extends AppCompatActivity {
                                 updateFreq(avg);
                                 Log.e("Pitch",""+avg);
                                 freqs=new ArrayList<>();
+                                try {
+                                    Thread.sleep(500);
+                                } catch (InterruptedException e1) {
+                                    e1.printStackTrace();
+                                }
                             }
 
 
@@ -93,6 +102,8 @@ public class MainActivity extends AppCompatActivity {
         rec.start();;
 
     }
+
+    Timer timer;
     Thread rec;
     float curPitch=0;
     float prevPitch=0;
@@ -119,6 +130,8 @@ public class MainActivity extends AppCompatActivity {
             jsonObject = new JSONObject();
             if(h<10)
                 return;
+            if(h>360)
+                h=360;
             jsonObject.put("h",h);
             jsonObject.put("s",1);
             jsonObject.put("v",1);
