@@ -1,5 +1,6 @@
 package in.hoptec.audizeriot;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -63,7 +64,7 @@ public class SoundRecordAndAnalysisActivity extends Activity implements OnClickL
     private final static int ID_BITMAPDISPLAYSPECTRUM = 1;
     private final static int ID_IMAGEVIEWSCALE = 2;
 
-    
+    public int THRESHOLD=1000;
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -121,13 +122,29 @@ public class SoundRecordAndAnalysisActivity extends Activity implements OnClickL
                 } else {
                     bufferReadResult = audioRecord.read(buffer, 0, blockSize);
 
-                    for (int i = 0; i < blockSize && i < bufferReadResult; i++) {
-                        toTransform[i] = (double) buffer[i] / 32768.0; // signed 16 bit
+                    short[] convertedValues = buffer;
+                    short max = convertedValues[0];
+
+                    for (int i = 1; i < convertedValues.length; i++) {
+                        if (convertedValues[i] > max) {
+                            max = convertedValues[i];
+                        }
                     }
 
-                    transformer.ft(toTransform);
 
-                    publishProgress(toTransform);
+                    //Log.v(LOG_TAG, "Max amp "+max);
+
+                    if(max>THRESHOLD){
+                        for (int i = 0; i < blockSize && i < bufferReadResult; i++) {
+                            toTransform[i] = (double) buffer[i] / 32768.0; // signed 16 bit
+                        }
+
+                        transformer.ft(toTransform);
+
+                        publishProgress(toTransform);
+                    }
+
+
 
                 }
 
@@ -139,7 +156,7 @@ public class SoundRecordAndAnalysisActivity extends Activity implements OnClickL
         	//Log.e("RecordingProgress", "Displaying in progress");
             double mMaxFFTSample = 150.0;
 
-            //Log.d("Test:", Integer.toString(progress[0].length));
+           // Log.d("Test:", Integer.toString(progress[0].length));
             if(progress[0].length == 1 ){
 
                 Log.d("FFTSpectrumAnalyzer", "onProgressUpdate: Blackening the screen");
@@ -225,35 +242,41 @@ public class SoundRecordAndAnalysisActivity extends Activity implements OnClickL
         }
    
         public void onClick(View v) {
-        if (started == true) {
-                //started = false;
-                CANCELLED_FLAG = true;
-                //recordTask.cancel(true);
-                try{
-                    audioRecord.stop();
-                }
-                catch(IllegalStateException e){
-                    Log.e("Stop failed", e.toString());
 
-                }
-                startStopButton.setText("Start");
-                //show the frequency that has the highest amplitude...
-                mHighestFreq = (((1.0 * frequency) / (1.0 * blockSize)) * mPeakPos)/2;
-                String str = "Frequency for Highest amplitude: " + mHighestFreq;
-                Toast.makeText(getApplicationContext(), str , Toast.LENGTH_LONG).show();
+            find();
+     }
 
-                canvasDisplaySpectrum.drawColor(Color.BLACK);
+     public void find()
+     {
+         if (started == true) {
+             //started = false;
+             CANCELLED_FLAG = true;
+             //recordTask.cancel(true);
+             try{
+                 audioRecord.stop();
+             }
+             catch(IllegalStateException e){
+                 Log.e("Stop failed", e.toString());
 
-            }
-        
-        else {
-                started = true;
-                CANCELLED_FLAG = false;
-                startStopButton.setText("Stop");
-                recordTask = new RecordAudio();
-                recordTask.execute();
-        }  
-        
+             }
+             //startStopButton.setText("Start");
+             //show the frequency that has the highest amplitude...
+             mHighestFreq = (((1.0 * frequency) / (1.0 * blockSize)) * mPeakPos)/2;
+             String str = "Frequency for Highest amplitude: " + mHighestFreq;
+             //Toast.makeText(getApplicationContext(), str , Toast.LENGTH_LONG).show();
+
+             Log.e("Freq",str);
+             canvasDisplaySpectrum.drawColor(Color.BLACK);
+
+         }
+
+         else {
+             started = true;
+             CANCELLED_FLAG = false;
+             //startStopButton.setText("Stop");
+             recordTask = new RecordAudio();
+             recordTask.execute();
+         }
      }
         static SoundRecordAndAnalysisActivity getMainActivity(){
 
@@ -263,7 +286,7 @@ public class SoundRecordAndAnalysisActivity extends Activity implements OnClickL
         public void onStop(){
         	super.onStop();
         	/*started = false;
-            startStopButton.setText("Start");*/
+            //startStopButton.setText("Start");*/
             //if(recordTask != null){
             recordTask.cancel(true);
             //}
@@ -339,9 +362,9 @@ public class SoundRecordAndAnalysisActivity extends Activity implements OnClickL
             main.addView(imageViewScale);
             
             startStopButton = new Button(this);
-            startStopButton.setText("Start");
-            startStopButton.setOnClickListener(this);
-            startStopButton.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT));
+            //startStopButton.setText("Start");
+            //startStopButton.setOnClickListener(this);
+            //startStopButton.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT));
            
             main.addView(startStopButton);
           
@@ -373,6 +396,7 @@ public class SoundRecordAndAnalysisActivity extends Activity implements OnClickL
         	startActivity(intent);
         }
         //Custom Imageview Class
+        @SuppressLint("AppCompatCustomView")
         public class MyImageView extends ImageView {
         	Paint paintScaleDisplay;
         	Bitmap bitmapScale;
