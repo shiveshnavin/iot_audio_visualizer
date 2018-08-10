@@ -13,8 +13,8 @@ IoT music visualization using ESP32 for mapping HSV values from Android App to R
 ## Build It Yourself
 
 ### App
-Import andorid studio project in Andorid Studio
-To send to IoT Device running a Web server change IP in
+Import andorid studio project in Andorid Studio .
+To send to IoT Device running a Web server change IP in :-
 ```code
 float h=(pitch/400)*360;
         JSONObject jsonObject= null;
