@@ -12,9 +12,28 @@ IoT music visualization using ESP32 for mapping HSV values from Android App to R
 
 ## Build It Yourself
 
+### ESP32 Device
+Change LED PWM Pin Nos. as 
+```code
+
+let red = 4;
+let green = 15;
+let green2 = 16;
+let blue = 5;
+let white = 19;
+
+```
+To build and Flash on ESP32 , Run in "Firmware" folder
+
+```code
+mos build --arch esp32 --platform esp32
+mos flash --arch esp32
+mos console
+
+
 ### App
-Import andorid studio project in Andorid Studio
-To send to IoT Device running a Web server change IP in
+Import andorid studio project in Andorid Studio .
+To send to IoT Device running a Web server change IP in :-
 ```code
 float h=(pitch/400)*360;
         JSONObject jsonObject= null;
