@@ -10,6 +10,11 @@ Project for Visualization of Different Music Pitches in a particular range to li
 
 IoT music visualization using ESP32 for mapping HSV values from Android App to RGBW lights .
 
+
+
+## Demo VIDEO CLICK TO OPEN
+[![IoT Music Visualization](https://img.youtube.com/vi/q-aPQKLFCvA/0.jpg)](https://www.youtube.com/watch?v=q-aPQKLFCvA "Video : IoT Music Visualization")
+
 ## Build It Yourself
 
 ### ESP32 Device
@@ -72,6 +77,3 @@ float h=(pitch/400)*360;
 ```
 
 
-
-## Demo VIDEO CLICK TO OPEN
-[![IoT Music Visualization](https://img.youtube.com/vi/q-aPQKLFCvA/0.jpg)](https://www.youtube.com/watch?v=q-aPQKLFCvA "Video : IoT Music Visualization")
